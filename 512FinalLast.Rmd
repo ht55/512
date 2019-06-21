@@ -1,0 +1,304 @@
+---
+title: "[The Quantified Self]"
+
+### Dashboards Laboratory
+author: "ANLY 506 - Hiroko Takano"
+output:
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    social: [ "menu" ]
+    source: embed
+    vertical_layout: scroll
+runtime: shiny
+---
+
+<style>
+.navbar {
+  background-color:black;
+  border-color:grey;
+}
+.navbar-brand {
+color:yellow!important;
+}
+body {
+  padding:80px 30px 10px 30px
+}
+</style>
+
+
+Introduction
+===================================== 
+
+Column {data-height=auto, data-width=550}
+-------------------------------------
+    
+### **Overview**
+    
+The Quantified Self (QS) is a movement motivated to leverage the synergy of wearables, analytics, and “Big Data”. This movement exploits the ease and convenience of data acquisition through the internet of things (IoT) to feed the growing obsession of personal informatics and quotidian data. The website http://quantifiedself.com/ is a great place to start to understand more about the QS movement.
+
+The value of the QS for our class is that its core mandate is to visualize and generate questions and insights about a topic that is of immense importance to most people – themselves. It also produces a wealth of data in a variety of forms. Therefore, designing this project around the QS movement makes perfect sense because it offers you the opportunity to be both the data and question provider, the data analyst, the vis designer, and the end user. This means you will be in the unique position of being capable of providing feedback and direction at all points along the data visualization/analysis life cycle.
+
+
+Column {data-height=auto, data-width=700}
+------------------------------------- 
+### **Objectives**
+
+Develop a visualization dashboard based on a series of data about your own life. The actual data used for this project can range from daily sleep regimes, TV shows watched, types of food eaten, to spatial positioning information at 1 minute intervals, to blood pressure and nutrient intake. The amount of data you collect and harvest will differ based on your specified objectives.
+
+Ultimately the project must meet certain key objectives:
+
+1. You must provide an written summary of your data collection, analysis and visualization methods, including the why you chose your methods, and what tools you utilized.
+2. Your summary must outline ≥ 5 questions that can be evaluated using a data-driven approach. These questions should be more than just “How many miles did I run”, although a couple of your questions could be stated that way.
+3. You must collect, manage, and store the data necessary for this visualization.
+4. You must design and create an appropriate set of visualizations (try not to use just one type of visualization) within a dashboard/storyboard that provides insight into your specified questions, with a minimum of ≥
+ 1 interactive graphical element.   
+
+Column
+-------------------------------------
+
+### **Motivation**
+    
+I have been using the *Health* app on my iPhone for the past few years, before I started studying data analytics. I was simply having fun to record and check how much I move per day while I carry my phone around. Unforfunately, it is not a wearable such as an Apple Watch, so it does not include all hard work from gym classes...
+
+Through the process/facts of QS can provide us not only the quantified aspects of our lives in the past for research purposes, it also can be a very strong tool to predit/prevent/develop efficiently some future occurings. 
+For example, analyzing decades of eating habit of a person who loves candy can predict the risk level of diabetic development in the future, and prevent or minimize the risk of the person being diabetic.
+
+
+
+Column {data-height=auto}
+-------------------------------------    
+### **Project Deliverables**
+To complete this assignment you must deliver two items:
+
+1. A ≤
+ 3 page write up of the questions, data acquisition, storage, manipulation, visualization methods and a written summary of each visualization.
+
+2. The final visualization.
+
+### 
+```{r, out.height="50px", out.width="50px"}
+knitr::include_graphics("images/walk.png")
+```
+
+
+Data Description & Preparation {data-orientation=rows}
+========================================================
+
+Row {data-width=300}
+-------------------------------------
+### **1. Data Description**
+
+**Data Name :** 
+"Helath_Data" collected and created by iOS [*Health*](https://www.apple.com/ios/health/) app on my iPhone, then was transferred & converted into csv format with [*QS Access*](https://apps.apple.com/us/app/qs-access/id920297614) app. 
+
+**Data Type**
+Time Series 
+
+**Description :**
+
+* 258 observations
+* 5 variables; 
+  + **Day** (from October 1, 2018 to June 15, 2019)  => character variable
+  + **Distance** (Walking + Running distance in km) => numerical variable
+  + **Flights Claimbed** (count) => numarical variable
+  + **Steps** (count) => numerical variable
+  + **Weekday** => character variable
+
+
+Column 
+-------------------------------------
+
+### **2. Data Cleaning**
+
++ The column "Finish" was omitted since I only needed one clumn for dates. 
++ Converted HealthDate data with analyzable date format, then added "Weekday" column.
++ Rename the "Start" column as "Day1".
++ Set the analyzing observation duration from October 1, 2018 to June 15, 2019 since there is no 
++ Check if there is any missing values => No missing value.
++ Check the new dataset's structure and brief summary.
++ Ready to visualize the data!
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+install.packages("lubridate", repos = "http://cran.us.r-project.org")
+install.packages("rsconnect", repos = "http://cran.us.r-project.org")
+library(readr)
+library(knitr)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(lubridate)
+library(flexdashboard)
+library(DT)
+library(tis)
+library(timeDate)
+library(timeSeries)
+library(rsconnect)
+```
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+HealthData <- read_csv('HealthData.csv')
+HD <- subset(HealthData, select = -c(Finish))
+```
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+names(HD)[1] <- paste("Day")
+HD <- HD[-(1:261), ]
+sum(is.na(HD))
+```
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+HD1 <- read_csv("HD1.csv")
+HD1$Start <- format(as.Date(HD1$Start), "%Y/%m/%d")
+names(HD1)[1] <- paste("Date2")
+names(HD1)[2] <- paste("Distance2")
+names(HD1)[3] <- paste("FlightClimbed2")
+names(HD1)[4] <- paste("Steps2")
+HD1
+```
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+HD2 <- HD1
+HD2$Weekday <- weekdays(HD2$Date2) 
+```
+```{r}
+DT::datatable(HD2, filter = "top",
+                    options = list(pageLength = 10, scrollY = "200px"))
+```
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+str(HD2)
+```
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+summary(HD2)
+```
+
+Questions
+===================================== 
+#### **Questions**
+
+1. Find the dates with the minimum activeness/movements.
+
+2. Find the dates with the maximum activeness/movements.
+
+3. Is there any significant difference/pattern between day of week?
+
+4. How can I improve my daily activily? 
+
+5. Any strategies for further/future analysis?
+
+
+### 
+```{r, out.height="1px", out.width="5px"}
+knitr::include_graphics("images/run.png")
+```
+
+
+Visualilzation 1
+===================================== 
+
+Column {data-height=800, data-width=500}
+-------------------------------------
+### **Variable Visualization**
+
+```{r}
+library(gridExtra)
+library(grid)
+library(ggplot2)
+library(lattice)
+```
+```{r}
+p1 <- ggplot(HD2) + aes(x = HD2$Date2, y = HD2$Distance2) + geom_point(shape = 8, col = "#0ddec5") + xlab("Date") + ylab("Distance")
+p2 <- ggplot(HD2) + aes(x = HD2$Date2, y = HD2$FlightClimbed2) + geom_point(shape = 18, col = "#ccde0d") + xlab("Date") + ylab("Climbed Flight")
+p3 <- ggplot(HD2) + aes(x = HD2$Date2, y = HD2$Steps2) + geom_point(shape = 16, col = "#910846") + xlab("Date") + ylab("Steps")
+```
+```{r}
+grid.arrange(p1, p2, p3, ncol = 3)
+```
+*Since this data set is a time series data, let me start my visualization analysis with a simple scatter plot. As above, I plotted each 3 variable with *Date* respectively. 
+All 3 scatter plot show that there are some outliers and most entries are concentrated near the median.*
+
+
+Column {data-height=800, data-width=500}
+-------------------------------------
+### **Frequency by Day of Week**
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+HD1 <- read_csv("HD1.csv")
+HD1$Start <- format(as.Date(HD1$Start), "%Y/%m/%d")
+names(HD1)[1] <- paste("Date2")
+names(HD1)[2] <- paste("Distance2")
+names(HD1)[3] <- paste("FlightClimbed2")
+names(HD1)[4] <- paste("Steps2")
+HD1
+```
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+HD2 <- HD1
+HD2$Weekday <- weekdays(HD2$Date2) 
+```
+
+```{r}
+ggplot(data=HD2,
+  aes(x=Distance2, fill=Weekday)) +
+  geom_density(alpha=.3) +
+  labs(main="Distance moved by day of week", x="Distance (km)", y="Density")
+```
+*This density plot shows that the frequency density by *Weekday*.
+It is noticeable that densities on weekends are lower than weekdays.*
+
+
+Visualilzation 2
+========================================================
+
+Row {.sidebar}
+--------------------------------------------------------
+*Let's check how the visualization graph changes as the value in sidebar chnages.*
+```{r}
+selectInput("n_breaks", label = "No.of bins:",
+            choices = c(10, 20, 35, 50), selected = 50)
+
+sliderInput("bw_adjust", label = "Bandwidth:",
+            min = 0.2, max = 2, value = 1, step = 0.2)
+```
+
+Row {data-height=auto, data-width=95%}
+-----------------------------------------------------------------------
+### Distance Histogram with interactions
+```{r}
+renderPlot({
+  di3 = HD2$Distance2
+  hist(
+    di3, probability = TRUE, breaks = as.integer(input$n_breaks),
+    xlab = "Distance", main = "Distance",
+    col = 'gray', border = 'white'
+  )
+  
+  dens = density(di3, adjust = input$bw_adjust)
+  lines(dens, col = "yellow", lwd = 3)
+})
+```
+
+
+Conclusion & References
+===================================== 
+#### **Conclusion**
+It was such a fun research analysis process with my own personal data. I didn't realize that a raw data can be difficult to work on, but thankfully, with R's multiple packages and functions it was smooth and intersting step to clean it.
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+max <- max(HD2$Distance2)
+summary(max)
+str(max)
+min <- min(HD2$Distance2)
+summary(min)
+```
+I must sat that I discovered my tendency to be lazy on weekends, compare to weekdays. However, as some outliers show, it is not the case always. For example, the date with maximum Distance (15.99 km!) & Step (22505 steps) is May 27, 2019, Monday, which was Memorial Day and I went to hiking with my friends. I should have considered holidays as a part of weekends.
+Meanwhile, the values for June 8, 2019 shows that I did not move at all with my iPhone (all variables ended up with *0*, except *Date*.), which is true since I was doing my homework all day.
+
+From the visualizations, I have noticed that there is still a pattern exists even with the outliers ; my weekdays are busier since I move more than I do on weekends.
+It will make this analysis more fun if I was able to obtain one more data set of my own, such as heart rate, weight change, etc., so that it can be another indicator of human physical movements and will lead me to find more productive correlations between them.
+
+
+#### **References**
+
++ **Lectures/slides by Prof. Alan Hitch**
++ `r kableExtra::text_spec("**https://quantifiedself.com**", color = "#5c5c5c")` - QS movement information.
++ `r kableExtra::text_spec("**http://feltron.com**", color = "#5c5c5c")` - The author of Personal Annual Reports, Nicholas Felton's website.
++ `r kableExtra::text_spec("**https://rmarkdown.rstudio.com/flexdashboard/index.html**", color = "#5c5c5c")` - Flexdashboard tutorial/gallery.
++ `r kableExtra::text_spec("**http://www.datavis.ca**", color = "#5c5c5c")` - Data visualization articles by Michael Friendly.
++ `r kableExtra::text_spec("**https://vita.had.co.nz/articles.html**", color = "#5c5c5c")` - Data visualization articles by Hadley Wickham.
++ `r kableExtra::text_spec("**https://github.com**", color = "#5c5c5c")`
++ `r kableExtra::text_spec("**https://www.datacamp.com**", color = "#5c5c5c")`
+
