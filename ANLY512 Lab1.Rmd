@@ -1,0 +1,186 @@
+---
+title: "ANLY 512: Data Visualization"
+subtitle: "Dashboards Laboratory"
+author: "Hiroko Takano"
+date: "5/20/2019"
+output:
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    social: [ "menu" ]
+    source: embed
+    vertical_layout: fill
+---
+<style>                     
+.navbar {
+  background-color:lightgrey;
+  border-color:black;
+}
+.navbar-brand {
+color:black!important;
+}
+</style> 
+
+Instruction
+===================================== 
+Row {data-height=320}
+-------------------------------------
+
+### **Overview**  
+
+Due to the inherent growth in the electronic production and storage of information, there is often a feeling of “information overload” or inundation when facing the process of quantitative decision making. As an analyst your job will often be to conduct analyses or create tools to support quantitative decision making.
+
+A principle tool used in industry, goverment, non-profits, and academic fields to compensate for the information overload is the information dashboard. Functionally, a dashboard is meant to provide a user with a central resource to present in a clear and concise manner all the information neccessary to support day-to-day decision making and support operations.
+
+Row {data-height=680}
+-------------------------------------
+### **Objective** 
+
+The objective of this laboratory is to plan, design, and create an information dashboard to support quantitative decision making. To accomplish this task you will have to complete a number of steps:
+
+1. Delineate the necessary decision (I will do that)
+2. Identify what information will be relevant to decision making.
+3. Find and collect the data necessary to create your visualization plan.
+4. Organize and summarize the collected data.
+5. Design and create the best visualizations to present that information.
+6. Finally organize the layout of those visualizations in a way that conforms to the theory of dashboarding.
+7. Write a summary about what decisions you made based on the visualizations that you developed.
+
+### **The Decision & Rules**
+
+You make investments for an organization, your objective is to purchase securities/commodities for the key objective of maximizing profits. You want to make an investment in securities/commodities to make some short term gains. You are considering investing in one of any four companies, for example: Twitter (TWTR), Microsoft (MSFT), or Apple (AAPL) (don’t use these). Choose 4 companies or commodities and determine which one of the four will produce the most short term gains. Use your imagination.
+
+### **Methods Help**
+##### *Getting data*
+There are lots of places we can get financial data to support these decision. The simplest would be to go to for instance to the Yahoo Finance (https://finance.yahoo.com/) for data on the Hershey Company (HSY) the URL would be: (https://finance.yahoo.com/quote/HSY/history?p=HSY) and collect historical price data, and other financial and company information.
+
+
+Key Indicator Analysis
+===================================== 
+##### **Indicators**
+
++ `r kableExtra::text_spec("**P-E Ratio**", color = "#5c5c5c")` - shows that investors are anticipating higher growth in the future. The current average market P/E ratio is roughly 20 to 25 times earnings.
++ `r kableExtra::text_spec("**EPS**", color = "#5c5c5c")` - forward P/E for the next fiscal year.
++ `r kableExtra::text_spec("**Dividend Yield Ratio**", color = "#5c5c5c")` - the dividend per share, divided by the price per share.
++ `r kableExtra::text_spec("**Market Cap**", color = "#5c5c5c")` - the market value of a publicly traded company's outstanding shares.
+
+##### **Key Indicator Analysis at a glance**
+
+Here we have a summarized table for the key financial indicators to evaluate the quality of four companies from different industries: Adobe (technology), Exxon (Energy), American Express (financial services), and Verizon (communication). The indicators are, P-E Ratio, Price EPS Estimate Next Year, Devision Yeils, and Market cap. 
+
+I chose these four companies since it would be interesting to see not only which company would be the most profitable as an individual company, but it will also be helpful for us to grasp which industry would be ideal for short term gains.
+Adobe has the highest P-E ratio and EPS among these four companies. P-E ratio is a powerful indicator to attract investors, while it could potentially contains higher risk for loss since its stock price could be overvalues. 
+Exxon, Amex, and Verizon have very similar and stable indicator outcomes. Beside Amex has smaller Market cap, I can assume that they would bring similar short term gain as a result.
+
+```{r}
+library(quantmod)
+library(plyr)
+what_metrics <- yahooQF(c("Price/Sales", 
+                          "P/E Ratio",
+                          "Price/EPS Estimate Next Year",
+                          "PEG Ratio",
+                          "Dividend Yield", 
+                          "Market Capitalization"))
+tickers <- c("ADBE", "XOM", "AXP", "VZ")
+metrics <- getQuote(paste(tickers, sep = "", collapse = ";"), what = what_metrics)
+metrics <- data.frame(Symbol = tickers, metrics[,2:length(metrics)]) 
+colnames(metrics) <- c("Symbol", "P-E Ratio", "Price EPS Estimate Next Year", "Div Yield", "Market Cap")
+write.csv(metrics, "FinancialMetrics.csv", row.names = FALSE)
+DT::datatable(metrics)
+```
+
+
+Invidisual Stock Analysis
+===================================== 
+#### **Stocks**
+
+```{r, echo = TRUE, include = FALSE, message = FALSE}
+install.packages("xts",repos = "http://cran.us.r-project.org")
+install.packages("dygraphs",repos = "http://cran.us.r-project.org")
+install.packages("lubridate",repos = "http://cran.us.r-project.org")
+install.packages("DT",repos = "http://cran.us.r-project.org")
+install.packages("pdfetch", repos = "http://cran.us.r-project.org")
+install.packages("PerformanceAnalytics", repos = "http://cran.us.r-project.org")
+install.packages("stocks", repos = "http://cran.us.r-project.org")
+library(xts) 
+library(pdfetch)
+library(DT)
+library(lubridate)
+library(dygraphs)
+library(quantmod) 
+library(dplyr)
+library(knitr)
+library(ggplot2)
+library(tidyr)
+library(plyr)
+library(PerformanceAnalytics)
+library(stocks)
+library(kableExtra)
+```
+
+```{r, echo=FALSE}
+getSymbols("ADBE", from = "2018-01-01", to = "2019-01-1")
+ADBElog <- ADBE %>% Ad() %>% dailyReturn(type = 'log')
+getSymbols("XOM", from = "2018-01-01",to = "2019-01-1")
+XOMlog <- XOM %>% Ad() %>% dailyReturn(type = 'log')
+getSymbols("AXP", from = "2018-01-01",to = "2019-01-1")
+AXPlog <- AXP %>% Ad() %>% dailyReturn(type = 'log')
+getSymbols("VZ", from = "2018-01-01",to = "2019-01-1")
+VZlog <- VZ %>% Ad() %>% dailyReturn(type = 'log')
+```
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+### Adobe
+```{r}
+ADBE %>% Ad() %>% chartSeries()
+ADBE %>% chartSeries(TA = 'addBBands();addVo();addMACD()',subset='2018')
+```
+
+### Exxon
+```{r}
+XOM %>% Ad() %>% chartSeries()
+XOM %>% chartSeries(TA = 'addBBands();addVo();addMACD()',subset='2018') 
+```
+
+### Amex
+```{r}
+AXP %>% Ad() %>% chartSeries()
+AXP %>% chartSeries(TA = 'addBBands();addVo();addMACD()',subset='2018')
+```
+
+### Verizon
+```{r}
+VZ %>% Ad() %>% chartSeries()
+VZ %>% chartSeries(TA = 'addBBands();addVo();addMACD()',subset='2018')
+```
+
+Monthly Return Comparison & Conclusion
+===================================== 
+Row {data-height=850}
+-------------------------------------
+### **Monthly Return Comparison**  
+
+In addition to the individual stock analysis, here is the comparison of their Monthly return in one combined plot.
+
+```{r}
+ADBEmr <- monthlyReturn(ADBE)
+XOMmr <- monthlyReturn(XOM)
+AXPmr <- monthlyReturn(AXP)
+VZmr <- monthlyReturn(VZ)
+
+mg.return <- merge.xts(ADBEmr, XOMmr, AXPmr, VZmr)
+colnames(mg.return) <- c("Adbe", "Exxon", "Amex", "Verizon")
+
+dygraph(mg.return, main = "Monthly Return") %>%
+  dyAxis("y", label = "Return") %>%
+  dyOptions(colors = RColorBrewer::brewer.pal(4, "Dark2")) %>%
+  dyHighlight(highlightSeriesBackgroundAlpha = 0.3,
+               highlightSeriesOpts = list(strokeWidth = 3)) %>%
+  dyRangeSelector(height = 30)
+```
+
+Row {data-height=150}
+-------------------------------------
+### **Conclusion**   
+
+From the generated logs of invidisual stock rates and monthly return comparison, I can say that my first choice to invest for short term gain is Adobe, but I would also consider Verizon.
