@@ -1,0 +1,186 @@
+---
+title: "ANLY 512 - Problem Set 2"
+author: "Hiroko Takano"
+date: "4/21/2019"
+output:
+  pdf_document: default
+  html_document: default
+subtitle: Anscombe's quartet
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Objectives
+
+The objectives of this problem set is to orient you to a number of activities in `R`.  And to conduct a thoughtful exercise in appreciating the importance of data visualization.  For each question create a code chunk or text response that completes/answers the activity or question requested. Finally, upon completion name your final output `.html` file as: `YourName_ANLY512-Section-Year-Semester.html` and upload it to the "Problem Set 2" assignment to your R Pubs account and submit the link to Moodle. Points will be deducted for uploading the improper format.
+
+
+## Questions
+
+### 1. 
+Anscombes quartet is a set of 4 $x,y$ data sets that were published by *Francis Anscombe* in a 1973 paper [*Graphs in statistical analysis*](https://www.jstor.org/stable/2682899?seq=1#page_scan_tab_contents).  For this first question load the `data` data that is part of the `library(datasets)` in `R`.  And assign that data to a new object called `data`.
+
+```{r}
+library(datasets)
+anscombe
+data <- anscombe
+str(data)
+summary(data)
+```
+
+
+### 2. 
+Summarize the data by calculating the mean, variance, for each column and the correlation between each pair (eg. x1 and y1, x2 and y2, etc) (Hint: use the `fBasics()` package!)
+
+```{r}
+library(fBasics)
+ameans <- colMeans(data)
+ameans
+avariances <- colVars(data)
+avariances
+ax <- data[ , 1:4]
+ay <- data[ , 5:8]
+acor <- cor(ax,ay)
+acor
+diag(acor)
+```
+"ameans" shows all means and "avariances" shows all variances of each column variables.
+Since "acor" derives all possible correlation combinations between {x1, ... ,x4} and {y1, ..., y4} respectively, I used "diag()" function for specified matrix combinations of {x1,y1}, {x2,y2}, {x3,y3}, and {x4,y4}.
+
+
+### 3. 
+Create scatter plots for each $x, y$ pair of data.
+< 1st Method : "ggplot" >
+```{r}
+library(ggplot2)
+agp1 <- ggplot(data, aes(x = x1, y = y1)) + geom_point(size = 2, shape = 17) + ggtitle("< Pair x1 & y1 >")
+agp1
+agp2 <- ggplot(data, aes(x = x2, y = y2)) + geom_point(size = 2, shape = 15) + ggtitle("< Pair x2 & y2 >")
+agp2
+agp3 <- ggplot(data, aes(x = x3, y = y3)) + geom_point(size = 2.5, shape = 18) + ggtitle("< Pair x3 & y3 >")
+agp3
+agp4 <- ggplot(data, aes(x = x4, y = y4)) + geom_point(size = 1.5, shape = 8) + ggtitle("< Pair x4 & y4 >")
+agp4
+```
+< 2nd Method : "plot" >
+```{r}
+plot(data$x1, data$y1, xlab = "x1", ylab = "y1", main = "Pair x1 & y1", pch = 17, col = "lightseagreen") 
+plot(data$x2, data$y2, xlab = "x2", ylab = "y2", main = "Pair x2 & y2", pch = 15, col = "lightseagreen")
+plot(data$x3, data$y3, xlab = "x3", ylab = "y3", main = "Pair x3 & y3", pch = 18, col = "lightseagreen")
+plot(data$x4, data$y4, xlab = "x3", ylab = "y4", main = "Pair x4 & y4", pch = 8, col = "lightseagreen")
+```
+
+
+### 4. 
+Now change the symbols on the scatter plots to solid circles and plot them together as a 4 panel graphic
+
+< 1st Method : "ggplot" >
+```{r}
+agp11 <- ggplot(data, aes(x=x1, y=y1)) + geom_point(size=2, shape=16) + ggtitle("< Pair x1 & y1 >")
+agp22 <- ggplot(data, aes(x=x2, y=y2)) + geom_point(size=2, shape=16) + ggtitle("< Pair x2 & y2 >")
+agp33 <- ggplot(data, aes(x=x3, y=y3)) + geom_point(size=2, shape=16) + ggtitle("< Pair x3 & y3 >")
+agp44 <- ggplot(data, aes(x=x4, y=y4)) + geom_point(size=2, shape=16) + ggtitle("< Pair x4 & y4 >")
+library(gridExtra)
+grid.arrange(agp11,agp22,agp33,agp44, top = "4 Panel View of Q3", layout_matrix = matrix(c(1,2,3,4), ncol = 2, byrow = TRUE))
+```
+< 2nd Method : "plot" >
+```{r}
+par(mfrow = c(2,2))
+plot(data$x1, data$y1, xlab = "x1", ylab = "y1", main = "Pair x1 & y1", col = "lightseagreen", pch = 16)
+plot(data$x2, data$y2, xlab = "x2", ylab = "y2", main = "Pair x2 & y2", col = "lightseagreen", pch = 16)
+plot(data$x3, data$y3, xlab = "x3", ylab = "y3", main = "Pair x3 & y3", col = "lightseagreen", pch = 16)
+plot(data$x4, data$y4, xlab = "x4", ylab = "y4", main = "Pair x4 & y4", col = "lightseagreen", pch = 16) 
+```
+
+
+### 5. 
+Now fit a linear model to each data set using the `lm()` function.
+```{r}
+af1 <- lm(data$y1~data$x1)
+af1
+```
+```{r}
+af2 <- lm(data$y2~data$x2)
+af2
+```
+```{r}
+af3 <- lm(data$y3~data$x3)
+af3
+```
+```{r}
+af4 <- lm(data$y4~data$x4)
+af4
+```
+
+
+### 6. 
+Now combine the last two tasks.  Create a four panel scatter plot matrix that has both the data points and the regression lines. (hint: the model objects will carry over chunks!)
+< 1st Method : Best Fit with "ggplot" >
+```{r}
+almgp1 <- ggplot(data, mapping=aes(x=x1, y=y1)) + geom_point() + labs(title="Pair x1 & y1") + stat_smooth(method="lm", col = "rosybrown2", se=FALSE)
+almgp2 <- ggplot(data, mapping=aes(x=x2, y=y2)) + geom_point() + labs(title="Pair x2 & y2") + stat_smooth(method="lm", col = "rosybrown2", se=FALSE)
+almgp3 <- ggplot(data, mapping=aes(x=x3, y=y3)) + geom_point() + labs(title="Pair x3 & y3") + stat_smooth(method="lm", col = "rosybrown2", se=FALSE) 
+almgp4 <- ggplot(data, mapping=aes(x=x4, y=y4)) + geom_point() + labs(title="Pair x4 & y4") + stat_smooth(method="lm", col = "rosybrown2", se=FALSE)
+library(gridExtra)
+grid.arrange(almgp1,almgp2,almgp3,almgp4, top = "4 Panel View with Regression Lines", layout_matrix = matrix(c(1,2,3,4), ncol = 2, byrow = TRUE))
+```
+< 2nd Method : Best Fit with simple "plot" >
+```{r}
+par(mfrow = c(2,2))
+plot(data$x1, data$y1, xlab = "x1", ylab = "y1", main = " Pair x1 & y1 with regression line", col = "lightseagreen", pch = 16)
+abline(af1, col = "yellow3")
+plot(data$x2, data$y2, xlab = "x2", ylab = "y2", main = " Pair x2 & y2 with regression line", col = "lightseagreen", pch = 16)
+abline(af2, col = "yellow3")
+plot(data$x3, data$y3, xlab = "x3", ylab = "y3", main = " Pair x3 & y3 with regression line", col = "lightseagreen", pch = 16)
+abline(af3, col = "yellow3")
+plot(data$x4, data$y4, xlab = "x4", ylab = "y4", main = " Pair x4 & y4 with regression line", col = "lightseagreen", pch = 16)
+abline(af4, col = "yellow3")
+```
+
+
+### 7.  
+Now compare the model fits for each model object.
+```{r, results="asis"}
+summary(af1)
+confint(af1, level = 0.95)
+plot(af1)
+anova(af1)
+```
+```{r, results="asis"}
+summary(af2)
+confint(af2, level = 0.95)
+plot(af2)
+anova(af2)
+```
+```{r, results="asis"}
+summary(af3)
+confint(af3, level = 0.95)
+plot(af3)
+anova(af3)
+```
+```{r, results="asis"}
+summary(af4)
+confint(af4, level = 0.95)
+plot(af4)
+anova(af4)
+```
+
+
+### 8. 
+In text, summarize the lesson of Anscombe's Quartet and what it says about the value of data visualization.
+
+By calculating critical factors of each variables and models in this data set, each pairwise correlation of {x1, y1}, {x2, y2}, {x3, y3}, and {x4, y4} shows quite similar theoretical results; 
+
+- mean of {x1}, {x2}, {x3}, {y4} = 9.0, 
+- mean of {x1}, {x2}, {x3}, {y4} = 7.5, 
+- variance of {x1}, {x2}, {x3}, {y4} = 11, 
+- variance of {y1, y2, y3, y4} = {4.127, 4.127, 4.127, 4.123},
+- correlation coefficient of {x1, y1}, {x2, y2}, {x3, y3}, {x4, y4} = 0.816,
+- R-squared values of lm{x1, y1}, lm{x2, y2}, lm{x3, y3}, {x4,y4} ≈ 0.66,
+- Fitted models : y = 0.5x + 3.0 for all {x1,y1}, {x2,y2}, {x3,y3}, {x4,y4}.
+  
+However, visualizing the data with scatter plot, it is clear to notice that they all differ from each other. For instance, the Pair x1 & y1 graph has entities that look almost randomly distributed to form a upward slope, while the Pair x2 & y2 entities form a upward curve, and the Pair x3 & y3 and x4 & y4 show their significant outliers.
+This interesting ambivalence tells us not only the importance of data visualization, but also the requirement and possibility of further approaches, to understand the data clearly and meet our analytic goals efficiently.
+  
