@@ -1,0 +1,295 @@
+---
+title: "ANLY512 : Data Visualilzation"
+subtitle: "Sea Ice Extent & Ocean Temperature Anomalies - Climate Change in Northern Hemisphere"
+author: "Hiroko Takano"
+date: "4/22/2019"
+output:
+  ioslides_presentation:
+    css: styles.css
+    scroll: true
+---
+
+## Introduction
+
+<font size="5">Climate change and science has been an issue for discussion and debate for at least the last decade. Climate data collection is currently being collected for areas all over the world. Policy decisions are based on the most recent analysis conducted on data extracted from huge online repositories of this data. Due to the inherent growth in the electronic production and storage of information, there is often a feeling of “information overload” or inundation when facing the process of quantitative decision making.
+
+The ability to synthesize large data sets using visualizations is a skill that all data scientists should have. In addition to this data, scientists are called upon to present data syntheses and develop questions or ideas based on their data exploration.</font>
+
+
+## Objective
+
+<font size="4.5">The objective of this laboratory is to survey the available data, plan, design, and create an information dashboard/presentation that not only explores the data but also develops questions based on that data exploration. To accomplish this task, the following process needs to be completed:</font>
+
+- <font size="4.5">Identify what information interests you about climate change.</font>
+- <font size="4.5">Find, collect, organize, and summarize the data necessary to create your data exploration plan.</font>
+- <font size="4.5">Design and create the most appropriate visualizations to explore the data and present that information. (no less than 5)</font>
+- <font size="4.5">Organize the layout of those visualizations into a dashboard in a way that shows your path of data exploration.</font>
+- <font size="4.5">Develop four questions or ideas about climate change from your visualizations.</font>
+
+## Data and Research Background
+
+##### <font size="4.5">**Data 1** : *Northern Hemisphere Sea Ice Extent (1979 - 2019)*</font>
+##### <font size="4.5">**Data 2** : *Northern Hemisphere Ocean Temperature Anomalies (1979 - 2019)*</font>
+<font size="4">*National Center For Environmental Information https://www.ncdc.noaa.gov/*</font>
+
+<font size="4.5">Both the level/amount of sea ice and the atmospheric temperature anomalies are quite important factors of climate change especially global warming.
+I specifically use these two types of data, two seasons from each year, four compact data sets in total.</font>
+
+-  <font size="4">February Sea Ice Data</font>
+-  <font size="4">August Sea Ice Data</font>
+-  <font size="4">February Temperature Anomalies Data</font>
+-  <font size="4">August Temperature Anomalies Data</font>
+
+## Analysis & Visualization 1
+<font size="4">I will perform visualizations and analyses in 3 parts; (1). Sea Ice data, (2). Temperature Anomalies data, and (3). Relationships between them.</font>
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+library(rnoaa)
+library(rgdal)
+library(ggplot2)
+```
+<font size="4">Before jumping in to analysis, let's take a look at Sea Ice coverage images with ggplot.
+The following is generated for the North Pole sea ice coverage in August 1979.</font>
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+urls <- seaiceeurls(mo = 'Aug', pole = 'N', yr = 1979)
+out <- seaice(urls)
+ggplot(out, aes(long, lat, group = group)) + 
+  geom_polygon(fill = "skyblue1") + 
+  theme_ice()
+```
+
+## Analysis & Visualization 2
+<font size="4">Here is the same image for August 2018.</font>
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+urls <- seaiceeurls(mo = 'Aug', pole = 'N', yr = 2018)
+out <- seaice(urls)
+ggplot(out, aes(long, lat, group = group)) + 
+  geom_polygon(fill = "lightblue") + 
+  theme_ice()
+```
+<font size="4">The amount of sea ice decrease is obvious and rapid. 
+We have lost more than a half of sea ice in less than 40 years.
+Now, let's consider more detailed sequent data for further evidence.</font>
+
+## Sea Ice in February 1
+
+<font size="4">First, I will plot the sea ice level change in February as the sea ice level change in winter time, from 1979 to 2019 with line plot with regression line, followed by the summary of the date set.</font>
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+library(ggplot2)
+library(scales)
+library(timeSeries)
+library(timeDate)
+library(readr)
+```
+<style>
+pre {
+  white-space: pre !important;
+  overflow-y: scroll !important;
+  height: 50vh !important;
+}
+</style>
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+ice2 <- read_csv("~/Desktop/512/ice2.csv", skip = 3)
+str(ice2)  
+```
+## Sea Ice in February 2
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+ggplot(ice2, mapping = aes(x = Date, y = Value)) + 
+  geom_line(size = 0.8, col = ("#99ccff")) + 
+  geom_point() +
+  labs(title = "February 1979-2019 : Northern Hemisphere Sea Ice Extent") + 
+  stat_smooth(method = "lm", size = 0.4, col = "#0000FF", se = FALSE) 
+```
+
+## Sea Ice in February 3
+<font size="4">The line plot above tells that the sea ice level in winter time is decreasing from 16.18 million km^2 to 14.40 million km^2.
+The added regression line confirms the decrease with a negative slope.</font>
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+feblm <- lm(ice2$Value~ice2$Date)
+feblm
+summary(feblm)
+```
+
+## Sea Ice in August 1
+<font size="4">Next, I will plot the sea ice level change in August as the summer time sea ice level change, from 1979 to 2019, followed by the summary of the data set.</font>
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+ice8 <- read_csv("~/Desktop/512/ice8.csv", skip = 3)
+str(ice8)
+```
+
+## Sea Ice in August 2
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+ggplot(ice8, mapping = aes(x = Date, y = Value)) + 
+  geom_line(size = 0.8, col = ("#cdcd00")) + 
+  geom_point() +
+  labs(title = "August 1979-2019 : Northern Hemisphere Sea Ice Extent") + 
+  stat_smooth(method = "lm", size = 0.4, col = "#ff6347", se = FALSE)
+```
+
+## Sea Ice in August 3
+<font size="4">This line plot shows that the sea ice level in summer time is decreasing from 8.04 million km^2 to 5.61 million km^2.
+The added regression line has downward slope that indicates a negative linear relationship between the time and value as the plot for February.</font>
+```{r, echo=FALSE}
+auglm <- lm(ice8$Value~ice8$Date)
+auglm
+summary(auglm)
+```
+
+## Sea Ice Comparison 
+<font size="4">Let's take a look at the two graphs in one panel.
+As the previous regression analyses clarified the slope of August is steeper than the February slope. Therefore, I can say that the sea ice melting speed August is faster than February's.
+</font>
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(ice2, mapping = aes(Date, Value)) + 
+    geom_line(aes(col = "February"), size = 0.8, col = ("#99ccff")) +
+    stat_smooth(method = "lm", size = 0.4, col = "#0000FF", se = FALSE) +
+    geom_point(data = ice2) +
+    geom_line(data = ice8, aes(col = "August"), size = 0.8, col =          ("#cdcd00")) +
+    stat_smooth(method = "lm", data = ice8, size = 0.4, col = "red", se = FALSE) + 
+    geom_point(data = ice8) +
+    labs(col = "Legend") +
+    scale_colour_manual("", breaks = c("February", "August"),
+                        values = c("February", "August")) +
+    ggtitle("Comparison of February & August : Northern Hemisphere Sea Ice Extent") + 
+    theme(plot.title = element_text(face = "bold"))
+```
+
+## Ocean Temperature Anomalies in February 1
+<font size="4"> Now, I will try visualizing the ocean temperature change as another indicator of global warming. Let's take a look at February temperature anomalies as the change in winter time.</font>
+
+<style>
+pre {
+  white-space: pre !important;
+  overflow-y: scroll !important;
+  height: 50vh !important;
+}
+</style>
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+ot2 <- read_csv("~/Desktop/512/ot2.csv", skip = 4)
+str(ot2)
+``` 
+
+## Ocean Temperature Anomalies in February 2
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+ggplot(ot2, mapping = aes(x = Year, y = Value)) + 
+  geom_line(size = 0.8, col = ("#9acd32")) + 
+  geom_point() +
+  labs(title = "February 1979-2019 : Northern Hemisphere Temperature Anomalies") + 
+  stat_smooth(method = "lm", size = 0.4, col = "#8968cd", se = FALSE)
+```
+
+## Ocean Temperature Anomalies in February 3
+<font size="4">The line plot with regression line tells that the temperature anomalies in February increases from -0.04 to 0.90 and the positive regression line confirms that.</font>
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+temp2lm <- lm(ot2$Value~ot2$Year)
+temp2lm
+summary(temp2lm)
+```
+
+## Ocean Temperature Anomalies in August 1
+<font size="4">Next, let's consider August ocean temperature anomalies as the temperature change in summer time.</font>
+
+<style>
+pre {
+  white-space: pre !important;
+  overflow-y: scroll !important;
+  height: 50vh !important;
+}
+</style>
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+ot8 <- read_csv("~/Desktop/512/ot8.csv", skip = 4)
+str(ot8)
+``` 
+
+## Ocean Temperature Anomalies in August 2
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(ot8, mapping = aes(x = Year, y = Value)) + 
+  geom_line(size = 0.8, col = ("#c71585")) + 
+  geom_point() +
+  labs(title = "August 1979-2019 : Northern Hemisphere Temperature Anomalies") + 
+  stat_smooth(method = "lm", size = 0.4, col = "#838b83", se = FALSE)
+```
+
+## Ocean Temperature Anomalies in August 3
+<font size="4">Similar to the February data, the August temperature anomalies also increases from 0.05 to 0.91 and the positive regression line confirms that as well.</font>
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+temp8lm <- lm(ot8$Value~ot8$Year)
+temp8lm
+summary(temp8lm)
+```
+
+## Ocean Temperature Anomalies Comparison 1
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+ggplot(ot2, mapping = aes(Year, Value)) + 
+    geom_line(aes(col = "February"), size = 0.8, col = ("#9acd32")) +
+    stat_smooth(method = "lm", size = 0.4, col = "#8968cd", se = FALSE) +
+    geom_point(data = ot2) +
+    geom_line(data = ot8, aes(col = "August"), size = 0.8, col =          ("#c71585")) +
+    stat_smooth(method = "lm", data = ot8, size = 0.4, col = "darkgray", se = FALSE) + 
+    geom_point(data = ot8) +
+    labs(col = "Legend") +
+    scale_colour_manual("", breaks = c("February", "August"),
+                        values = c("February", "August")) +
+    ggtitle("Comparison of February & August : Northern Hemisphere Temperature Anomalies") + 
+    theme(plot.title = element_text(face = "bold"))
+```
+
+## Ocean Temperature Anomalies Comparison 2
+<font size="4">They both have similar positive slopes, but the slope of August is slilghtly steeper than the February slope. Therefore, I can say that the temperature anomalies in August is more rapid than February's.</font>
+
+
+## Relationship between Se Ice Extent & Ocean Temperature Anomalies 1
+<font size="4">Now, I would like to check if there exists any interesting relationship between two data set types.
+It is kind of intuitive to predict that when the ocean temperature anomalies increases the sea ice level decreases, which is a principle definition of global warming.</font>
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+comb2 <- merge(ice2, ot2, by.x = "Date", by.y = "Year")
+cor(comb2$Value.x, comb2$Value.y, method = "pearson")
+```
+
+## Relationship between Se Ice Extent & Ocean Temperature Anomalies 2
+<font size="4">The Pearson correlation test result indicates that there exists a slightly strong negative correlation between sea ice level and temperature anomalies.</font>
+
+## Relationship between Se Ice Extent & Ocean Temperature Anomalies 3
+<font size="4">Let's visualize the correlation with scatter plot.</font>
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library("ggpubr")
+ggplot(comb2, aes(x = Value.x, y = Value.y)) + 
+  geom_point(col = "#8b1c62") +
+  stat_smooth(method = "lm", col = "#ffff00") +
+  labs(x = "Sea Ice", y = "Temperature Anomalies", title = "Correlation between Sea Ice Level and Temperature Anomalies")
+```
+
+## Relationship between Se Ice Extent & Ocean Temperature Anomalies 4
+<font size="4">From this scatter plot, we observe a nice linear correlation between two variables.
+
+Let me check their normality by using Shapiro-W test, just to make sure.</font>
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+shapiro.test(comb2$Value.x)
+```
+
+## Relationship between Se Ice Extent & Ocean Temperature Anomalies 5
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+shapiro.test(comb2$Value.y)
+```
+<font size="4">Their p-values are both greater than the significant level 0.05, therefore,they have normal distributions.</font>
+
+## Conclusion
+
+By visualizing the four data sets with line/scatter plots, the following facts were confirmed;
+
+-  The sea ice level in northern hemisphere is decreasing very fast-paced in the last 40 years.
+-  The temperature anomalies in northern hemisphere is increasing pretty rapidly in the last 40 years.
+-  These two factors have a strong correlation.
+
+## Questions & Ideas
+
+1. What other types of visualization methods can be used/applied for this analysis? I was debating to use histogram or adding more factors to form a matrix plot.
+2. What can we predict for southern hemisphere by looking at northern hemisphere data sets?
+3. The topic is interesting enough to analyze further. Having many variables and analyze with various models would be fun.
+4. The coding strategy could be so varied!
